@@ -16,4 +16,25 @@ export class ProductActor {
             res.json(Responder.internal())
         }
     }
+    static async getProducts(req: Request, res: Response) {
+        try {
+            const {asc, filter, checked} = req.query
+            console.log(req.query);
+            
+            console.log(asc, filter, checked);
+            const bool_asc = "true" === asc?.toString() // "false" -> false
+            const arr_checked = checked?.toString().split(',') //"1,2,3" => ["1","2","3"]
+            const products = await Pool.conn.product.findMany({
+                orderBy: [
+                    filter === "price" ?
+                     {price: bool_asc ? "asc" : "desc"} : 
+                     {id: bool_asc ? "asc" : "desc"}
+                ]
+            })
+            res.json(Responder.ok({products}))
+        } catch (error) {
+            console.log(error)
+            res.json(Responder.internal())
+        }
+    }
 }
